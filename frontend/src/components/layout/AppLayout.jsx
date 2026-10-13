@@ -1,12 +1,10 @@
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
-
-// Sementara: pengguna palsu. Nanti diganti dari AuthContext.
-const dummyUser = { nama: 'Budi', role: 'pemilik', roleLabel: 'Pemilik' }
+import { useAuth } from '../../context/useAuth'
 
 export default function AppLayout() {
-  const user = dummyUser
+  const { user } = useAuth()
 
   return (
     <div className="flex min-h-screen bg-[#FFF9E8] text-ink">

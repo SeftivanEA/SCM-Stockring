@@ -1,4 +1,9 @@
+import { useAuth } from '../../context/useAuth'
+import Button from '../ui/Button'
+
 export default function Topbar({ user }) {
+  const { logout } = useAuth()
+
   return (
     <header className="sticky top-0 z-10 flex items-center justify-end gap-3 border-b border-cream bg-white px-4 py-3 md:px-8">
       <button className="relative rounded-lg px-3 py-2 hover:bg-cream">
@@ -15,6 +20,7 @@ export default function Topbar({ user }) {
           <span className="opacity-70">{user.roleLabel}</span>
         </div>
       </div>
+      <Button variant="outline" onClick={logout}>Keluar</Button>
     </header>
   )
 }
