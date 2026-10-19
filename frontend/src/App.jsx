@@ -4,6 +4,7 @@ import PlaceholderPage from './pages/PlaceholderPage'
 import LoginPage from './pages/LoginPage'
 import ProtectedRoute from './routes/ProtectedRoute'
 import RoleRoute from './routes/RoleRoute'
+import DivisiStafPage from './pages/DivisiStafPage'
 
 export default function App() {
   return (
@@ -20,7 +21,7 @@ export default function App() {
             <Route path="/produk" element={<PlaceholderPage title="Produk & Penjualan" />} />
             <Route path="/transaksi" element={<PlaceholderPage title="Riwayat Transaksi" />} />
             <Route path="/tugas" element={<PlaceholderPage title="Pengiriman & Penataan" />} />
-            <Route path="/divisi" element={<PlaceholderPage title="Divisi & Staf" />} />
+            <Route path="/divisi" element={<DivisiStafPage />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
