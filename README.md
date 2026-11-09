@@ -49,7 +49,7 @@ Sistem Manajemen Stok Barang berbasis web untuk mengelola barang mentah (gudang)
 | Frontend | React (Vite) | Vite 8.3.4 · React 19.2.8 |
 | Styling | Tailwind CSS | akan dipasang |
 | Backend | Laravel (REST API) | 13.35.0 |
-| Bahasa backend | PHP | 8.3.30 |
+| Bahasa backend | PHP | 8.4.1 |
 | Database | MySQL | 8.4.3 |
 | Autentikasi | Laravel Sanctum | akan dipasang nanti |
 | Lingkungan lokal | Laragon (Windows) | 8.6.1 |
