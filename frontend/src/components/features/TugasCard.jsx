@@ -9,6 +9,7 @@ export default function TugasCard({ tugas, onUpdate }) {
       <Badge variant={tugas.jenis === 'Pengiriman' ? 'neutral' : 'warning'}>{tugas.jenis}</Badge>
       <p className="mt-2 font-bold">{tugas.judul}</p>
       <p className="opacity-70">{tugas.detail}</p>
+      {tugas.staf_nama && <p className="text-xs opacity-60">Ditugaskan: {tugas.staf_nama}</p>}
       {logTerakhir && <p className="mt-2 text-xs opacity-60">{logTerakhir}</p>}
       {tugas.status !== 'Selesai' && (
         <Button className="mt-3 w-full text-sm" onClick={() => onUpdate(tugas)}>

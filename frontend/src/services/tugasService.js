@@ -2,6 +2,11 @@ import api from './api'
 
 export const getTugas = async () => (await api.get('/tugas')).data.data
 
+export const createTugas = async (payload) => (await api.post('/tugas', payload)).data.data
+
+export const getStafByRole = async (role) =>
+  (await api.get('/staf', { params: { role } })).data.data
+
 export const updateStatusTugas = async (id, { status, penerima, catatan }) => {
   const body = { status }
   if (penerima) body.penerima = penerima
