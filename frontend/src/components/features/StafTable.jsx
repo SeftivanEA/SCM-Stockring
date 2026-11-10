@@ -18,11 +18,11 @@ export default function StafTable({ staf, divisi, onAssign }) {
               <td className="py-2">
                 <select
                   className="w-44 rounded-lg border border-cream bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  value={s.divisi}
-                  onChange={(e) => onAssign(s, e.target.value)}
+                  value={s.divisi_id ?? ''}
+                  onChange={(e) => onAssign(s, Number(e.target.value))}
                 >
                   {divisi.map((d) => (
-                    <option key={d.id}>{d.nama}</option>
+                    <option key={d.id} value={d.id}>{d.nama}</option>
                   ))}
                 </select>
               </td>
