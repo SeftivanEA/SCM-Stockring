@@ -5,6 +5,7 @@ import Toast from '../components/ui/Toast'
 import TugasCard from '../components/features/TugasCard'
 import UpdateStatusForm from '../components/features/UpdateStatusForm'
 import { getTugas, updateStatusTugas } from '../services/tugasService'
+import { parseError } from '../utils/apiError'
 
 const KOLOM = ['Baru', 'Diproses', 'Selesai']
 const JENIS_PERAN = { penataan: 'Penataan', pengiriman: 'Pengiriman' }
@@ -13,32 +14,43 @@ export default function TugasPage() {
   const { user } = useAuth()
   const [tugas, setTugas] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [selected, setSelected] = useState(null)
-  const [toast, setToast] = useState('')
+  const [toast, setToast] = useState({ message: '', error: false })
   const [filter, setFilter] = useState('Semua')
 
   useEffect(() => {
     let ignore = false
-    getTugas().then((data) => {
-      if (ignore) return
-      setTugas(data)
-      setLoading(false)
-    })
+    getTugas()
+      .then((data) => {
+        if (!ignore) setTugas(data)
+      })
+      .catch((err) => {
+        if (!ignore) setLoadError(parseError(err).message)
+      })
+      .finally(() => {
+        if (!ignore) setLoading(false)
+      })
     return () => {
       ignore = true
     }
   }, [])
 
-  // Staf hanya melihat jenis tugas divisinya. Pemilik melihat semua dan bisa menyaring.
+  const showToast = (message, error = false) => {
+    setToast({ message, error })
+    setTimeout(() => setToast({ message: '', error: false }), 2500)
+  }
+
   const jenisPeran = JENIS_PERAN[user.role]
   const jenisAktif = jenisPeran ?? (filter === 'Semua' ? null : filter)
   const tampil = jenisAktif ? tugas.filter((t) => t.jenis === jenisAktif) : tugas
 
+  // Error dari server dilempar ke form agar tampil di dalam popup.
   const handleSubmit = async (data) => {
-    setTugas(await updateStatusTugas(selected.id, data))
+    await updateStatusTugas(selected.id, data)
+    setTugas(await getTugas())
     setSelected(null)
-    setToast(`Status diperbarui menjadi ${data.status}`)
-    setTimeout(() => setToast(''), 2200)
+    showToast(`Status diperbarui menjadi ${data.status}`)
   }
 
   return (
@@ -63,6 +75,8 @@ export default function TugasPage() {
 
       {loading ? (
         <p className="opacity-70">Memuat data...</p>
+      ) : loadError ? (
+        <p className="text-red-600">{loadError}</p>
       ) : (
         <div className="grid gap-4 md:grid-cols-3">
           {KOLOM.map((k) => {
@@ -87,7 +101,7 @@ export default function TugasPage() {
           <UpdateStatusForm tugas={selected} onSubmit={handleSubmit} onCancel={() => setSelected(null)} />
         </Modal>
       )}
-      <Toast message={toast} />
+      <Toast message={toast.message} error={toast.error} />
     </div>
   )
 }
