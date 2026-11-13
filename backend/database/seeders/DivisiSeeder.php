@@ -13,10 +13,30 @@ class DivisiSeeder extends Seeder
     public function run(): void
     {
         $divisis = [
-            ['nama' => 'Pendataan', 'deskripsi' => 'Mencatat barang masuk & verifikasi fisik'],
-            ['nama' => 'Penataan', 'deskripsi' => 'Menata barang di etalase'],
-            ['nama' => 'Pengiriman', 'deskripsi' => 'Memproses pengiriman barang'],
-            ['nama' => 'Audit', 'deskripsi' => 'Memeriksa data stok (hanya baca)'],
+            [
+                'nama' => 'Pendataan',
+                'deskripsi' => 'Penerimaan, pencatatan stok bahan mentah, dan verifikasi fisik gudang',
+            ],
+            [
+                'nama' => 'Penataan',
+                'deskripsi' => 'Display, pengaturan etalase, dan rotasi stok produk jadi di toko',
+            ],
+            [
+                'nama' => 'Pengiriman',
+                'deskripsi' => 'Pemrosesan order keluar, distribusi barang, dan pengantaran ke pelanggan',
+            ],
+            [
+                'nama' => 'Audit',
+                'deskripsi' => 'Pemeriksaan stok berkala, audit kepatuhan, dan rekonsiliasi data inventaris',
+            ],
+            [
+                'nama' => 'Quality Control',
+                'deskripsi' => 'Pengawasan mutu bahan baku, standarisasi resep, dan inspeksi kelayakan produk',
+            ],
+            [
+                'nama' => 'Pengemasan',
+                'deskripsi' => 'Pengepakan produk segar, pemberian label batch/tanggal, dan segel kemasan',
+            ],
         ];
 
         foreach ($divisis as $divisi) {
