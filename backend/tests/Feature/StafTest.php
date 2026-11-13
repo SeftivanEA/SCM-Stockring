@@ -33,14 +33,60 @@ class StafTest extends TestCase
         $response = $this->postJson('/api/staf', [
             'nama' => 'Roni Saputra',
             'username' => 'roni',
+            'password' => 'secret123',
             'divisi_id' => $divisi->id,
         ]);
 
         $response->assertStatus(201)
             ->assertJsonPath('data.username', 'roni')
-            ->assertJsonPath('data.divisi', 'Penataan');
+            ->assertJsonPath('data.divisi', 'Penataan')
+            ->assertJsonPath('data.role', 'penataan');
 
         $this->assertDatabaseHas('users', ['username' => 'roni']);
+    }
+
+    public function test_create_staff_requires_password_min_6_chars(): void
+    {
+        $pemilik = User::factory()->create(['role' => 'pemilik']);
+        Sanctum::actingAs($pemilik);
+
+        $responseNoPass = $this->postJson('/api/staf', [
+            'nama' => 'Roni Saputra',
+            'username' => 'roni_nopass',
+        ]);
+        $responseNoPass->assertStatus(422)
+            ->assertJsonValidationErrors(['password']);
+
+        $responseShortPass = $this->postJson('/api/staf', [
+            'nama' => 'Roni Saputra',
+            'username' => 'roni_short',
+            'password' => '12345',
+        ]);
+        $responseShortPass->assertStatus(422)
+            ->assertJsonValidationErrors(['password']);
+    }
+
+    public function test_create_staff_with_custom_division_assigns_staf_role(): void
+    {
+        $pemilik = User::factory()->create(['role' => 'pemilik']);
+        $customDivisi = Divisi::factory()->create(['nama' => 'Logistik Tambahan']);
+        Sanctum::actingAs($pemilik);
+
+        $response = $this->postJson('/api/staf', [
+            'nama' => 'Bambang',
+            'username' => 'bambang',
+            'password' => 'secret123',
+            'divisi_id' => $customDivisi->id,
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.role', 'staf')
+            ->assertJsonPath('data.roleLabel', 'Staf');
+
+        $this->assertDatabaseHas('users', [
+            'username' => 'bambang',
+            'role' => 'staf',
+        ]);
     }
 
     public function test_pemilik_can_assign_staff_division(): void
@@ -61,6 +107,28 @@ class StafTest extends TestCase
             'id' => $staf->id,
             'divisi_id' => $divisi->id,
             'role' => 'pengiriman',
+        ]);
+    }
+
+    public function test_assign_custom_division_changes_staff_role_to_staf(): void
+    {
+        $pemilik = User::factory()->create(['role' => 'pemilik']);
+        $customDivisi = Divisi::factory()->create(['nama' => 'Operasional Khusus']);
+        $auditStaf = User::factory()->create(['role' => 'audit']);
+        Sanctum::actingAs($pemilik);
+
+        $response = $this->putJson('/api/staf/'.$auditStaf->id.'/divisi', [
+            'divisi_id' => $customDivisi->id,
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.role', 'staf')
+            ->assertJsonPath('data.roleLabel', 'Staf');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $auditStaf->id,
+            'divisi_id' => $customDivisi->id,
+            'role' => 'staf',
         ]);
     }
 

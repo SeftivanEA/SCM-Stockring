@@ -22,7 +22,9 @@ class StafController extends Controller
     {
         $query = User::with('divisi');
 
-        if ($request->filled('divisi')) {
+        if ($request->filled('divisi_id')) {
+            $query->where('divisi_id', $request->query('divisi_id'));
+        } elseif ($request->filled('divisi')) {
             $query->whereHas('divisi', function ($q) use ($request): void {
                 $q->where('nama', $request->query('divisi'));
             });
@@ -43,15 +45,7 @@ class StafController extends Controller
     public function store(StoreStafRequest $request): JsonResponse
     {
         $validated = $request->validated();
-
         $divisiId = $validated['divisi_id'] ?? null;
-        if (! $divisiId && ! empty($validated['divisi'])) {
-            $divisi = Divisi::firstOrCreate(
-                ['nama' => $validated['divisi']],
-                ['deskripsi' => '-']
-            );
-            $divisiId = $divisi->id;
-        }
 
         $role = $validated['role'] ?? null;
         if (! $role && $divisiId) {
@@ -61,7 +55,7 @@ class StafController extends Controller
                 'penataan' => 'penataan',
                 'pengiriman' => 'pengiriman',
                 'audit' => 'audit',
-                default => 'pendataan',
+                default => 'staf',
             };
         }
 
@@ -69,8 +63,8 @@ class StafController extends Controller
             'name' => $validated['nama'],
             'username' => $validated['username'],
             'email' => $validated['username'].'@stockring.local',
-            'password' => Hash::make($validated['password'] ?? 'password'),
-            'role' => $role ?? 'pendataan',
+            'password' => Hash::make($validated['password']),
+            'role' => $role ?? 'staf',
             'divisi_id' => $divisiId,
         ]);
 
@@ -86,30 +80,23 @@ class StafController extends Controller
     public function assignDivisi(AssignStafDivisiRequest $request, User $user): JsonResponse
     {
         $validated = $request->validated();
-
-        $divisiId = $validated['divisi_id'] ?? null;
-        if (! $divisiId && ! empty($validated['divisi'])) {
-            $divisi = Divisi::firstOrCreate(
-                ['nama' => $validated['divisi']],
-                ['deskripsi' => '-']
-            );
-            $divisiId = $divisi->id;
-        }
+        $divisiId = $validated['divisi_id'];
 
         $user->divisi_id = $divisiId;
-        if ($divisiId) {
-            $divisiModel = Divisi::find($divisiId);
-            $mappedRole = match (strtolower($divisiModel?->nama ?? '')) {
-                'pendataan' => 'pendataan',
-                'penataan' => 'penataan',
-                'pengiriman' => 'pengiriman',
-                'audit' => 'audit',
-                default => null,
-            };
-            if ($mappedRole && $user->role !== 'pemilik') {
-                $user->role = $mappedRole;
-            }
+
+        $divisiModel = Divisi::find($divisiId);
+        $mappedRole = match (strtolower($divisiModel?->nama ?? '')) {
+            'pendataan' => 'pendataan',
+            'penataan' => 'penataan',
+            'pengiriman' => 'pengiriman',
+            'audit' => 'audit',
+            default => 'staf',
+        };
+
+        if ($user->role !== 'pemilik') {
+            $user->role = $mappedRole;
         }
+
         $user->save();
 
         return response()->json([
