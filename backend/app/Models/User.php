@@ -52,6 +52,7 @@ class User extends Authenticatable
                 'penataan' => 'Staf Penataan',
                 'pengiriman' => 'Staf Pengiriman',
                 'audit' => 'Staf Audit',
+                'staf' => 'Staf',
                 default => ucfirst($this->role ?? 'Staf'),
             }
         );

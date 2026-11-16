@@ -7,6 +7,7 @@ use App\Http\Requests\Tugas\StoreTugasRequest;
 use App\Http\Requests\Tugas\UpdateStatusTugasRequest;
 use App\Http\Resources\TugasResource;
 use App\Models\Tugas;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,8 +21,13 @@ class TugasController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = Tugas::with('user');
+        $user = $request->user();
 
-        if ($request->filled('jenis')) {
+        if ($user->role === 'penataan') {
+            $query->where('jenis', 'Penataan');
+        } elseif ($user->role === 'pengiriman') {
+            $query->where('jenis', 'Pengiriman');
+        } elseif ($request->filled('jenis')) {
             $query->where('jenis', $request->query('jenis'));
         }
 
@@ -53,8 +59,10 @@ class TugasController extends Controller
     /**
      * Display the specified task.
      */
-    public function show(Tugas $tugas): TugasResource
+    public function show(Request $request, Tugas $tugas): TugasResource
     {
+        $this->authorizeTugasAccess($request->user(), $tugas);
+
         return new TugasResource($tugas->load('user'));
     }
 
@@ -63,6 +71,8 @@ class TugasController extends Controller
      */
     public function updateStatus(UpdateStatusTugasRequest $request, Tugas $tugas): JsonResponse
     {
+        $this->authorizeTugasAccess($request->user(), $tugas);
+
         $validated = $request->validated();
         $status = $validated['status'];
         $penerima = $validated['penerima'] ?? null;
@@ -76,7 +86,7 @@ class TugasController extends Controller
             $tugas->catatan = $catatan;
         }
 
-        $tanggal = Carbon::now()->translatedFormat('d M Y');
+        $tanggal = Carbon::now()->locale('id')->translatedFormat('d M Y');
         $keterangan = ($status === 'Selesai' && $penerima) ? "Diterima {$penerima}" : $status;
         $entryLog = "{$tanggal} · {$keterangan}".($catatan ? " · {$catatan}" : '');
 
@@ -87,5 +97,25 @@ class TugasController extends Controller
             'message' => 'Status tugas berhasil diperbarui',
             'data' => new TugasResource($tugas->load('user')),
         ]);
+    }
+
+    /**
+     * Authorize access to task based on user role and task jenis.
+     */
+    protected function authorizeTugasAccess(User $user, Tugas $tugas): void
+    {
+        if ($user->role === 'pemilik') {
+            return;
+        }
+
+        $isAllowed = match ($user->role) {
+            'penataan' => $tugas->jenis === 'Penataan',
+            'pengiriman' => $tugas->jenis === 'Pengiriman',
+            default => false,
+        };
+
+        if (! $isAllowed) {
+            abort(403, 'Akses ditolak untuk jenis tugas ini.');
+        }
     }
 }

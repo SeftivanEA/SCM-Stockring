@@ -24,10 +24,9 @@ class StoreStafRequest extends FormRequest
         return [
             'nama' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:users,username'],
-            'password' => ['nullable', 'string', 'min:6'],
-            'divisi' => ['nullable', 'string'],
+            'password' => ['required', 'string', 'min:6'],
             'divisi_id' => ['nullable', 'exists:divisis,id'],
-            'role' => ['nullable', 'string', 'in:pemilik,pendataan,penataan,pengiriman,audit'],
+            'role' => ['nullable', 'string', 'in:pemilik,pendataan,penataan,pengiriman,audit,staf'],
         ];
     }
 }

@@ -17,45 +17,91 @@ class UserSeeder extends Seeder
         $divisiMap = Divisi::pluck('id', 'nama');
 
         $users = [
+            // Pemilik / Manajer
             [
-                'name' => 'Budi',
+                'name' => 'Budi Pratama Santoso',
                 'username' => 'budi',
-                'email' => 'budi@stockring.local',
+                'email' => 'budi.santoso@stockring.local',
                 'password' => Hash::make('password'),
                 'role' => 'pemilik',
                 'divisi_id' => null,
             ],
+            // Divisi Pendataan
             [
-                'name' => 'Rina',
+                'name' => 'Rina Marlina',
                 'username' => 'rina',
-                'email' => 'rina@stockring.local',
+                'email' => 'rina.marlina@stockring.local',
                 'password' => Hash::make('password'),
                 'role' => 'pendataan',
                 'divisi_id' => $divisiMap['Pendataan'] ?? null,
             ],
             [
-                'name' => 'Dewi',
+                'name' => 'Fajar Nugroho',
+                'username' => 'fajar.nugroho',
+                'email' => 'fajar.nugroho@stockring.local',
+                'password' => Hash::make('password'),
+                'role' => 'pendataan',
+                'divisi_id' => $divisiMap['Pendataan'] ?? null,
+            ],
+            // Divisi Penataan
+            [
+                'name' => 'Dewi Lestari',
                 'username' => 'dewi',
-                'email' => 'dewi@stockring.local',
+                'email' => 'dewi.lestari@stockring.local',
                 'password' => Hash::make('password'),
                 'role' => 'penataan',
                 'divisi_id' => $divisiMap['Penataan'] ?? null,
             ],
             [
-                'name' => 'Andi',
+                'name' => 'Siti Rahmawati',
+                'username' => 'siti.rahmawati',
+                'email' => 'siti.rahmawati@stockring.local',
+                'password' => Hash::make('password'),
+                'role' => 'penataan',
+                'divisi_id' => $divisiMap['Penataan'] ?? null,
+            ],
+            // Divisi Pengiriman
+            [
+                'name' => 'Andi Wijaya Saputra',
                 'username' => 'andi',
-                'email' => 'andi@stockring.local',
+                'email' => 'andi.wijaya@stockring.local',
                 'password' => Hash::make('password'),
                 'role' => 'pengiriman',
                 'divisi_id' => $divisiMap['Pengiriman'] ?? null,
             ],
             [
-                'name' => 'Sari',
+                'name' => 'Rizky Maulana',
+                'username' => 'rizky.maulana',
+                'email' => 'rizky.maulana@stockring.local',
+                'password' => Hash::make('password'),
+                'role' => 'pengiriman',
+                'divisi_id' => $divisiMap['Pengiriman'] ?? null,
+            ],
+            // Divisi Audit
+            [
+                'name' => 'Sari Indah Permata',
                 'username' => 'sari',
-                'email' => 'sari@stockring.local',
+                'email' => 'sari.permata@stockring.local',
                 'password' => Hash::make('password'),
                 'role' => 'audit',
                 'divisi_id' => $divisiMap['Audit'] ?? null,
+            ],
+            // Divisi Kustom (Quality Control & Pengemasan -> Role 'staf')
+            [
+                'name' => 'Dimas Wahyu Fauzi',
+                'username' => 'dimas.fauzi',
+                'email' => 'dimas.fauzi@stockring.local',
+                'password' => Hash::make('password'),
+                'role' => 'staf',
+                'divisi_id' => $divisiMap['Quality Control'] ?? null,
+            ],
+            [
+                'name' => 'Nurul Hidayah',
+                'username' => 'nurul.hidayah',
+                'email' => 'nurul.hidayah@stockring.local',
+                'password' => Hash::make('password'),
+                'role' => 'staf',
+                'divisi_id' => $divisiMap['Pengemasan'] ?? null,
             ],
         ];
 

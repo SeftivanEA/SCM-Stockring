@@ -22,8 +22,7 @@ class AssignStafDivisiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'divisi' => ['nullable', 'string'],
-            'divisi_id' => ['nullable', 'exists:divisis,id'],
+            'divisi_id' => ['required', 'exists:divisis,id'],
         ];
     }
 }
