@@ -8,6 +8,11 @@ export default function RoleRoute() {
 
   const item = menuItems.find((m) => pathname.startsWith(m.path))
   const allowed = !item || item.roles.includes(user.role)
+  if (allowed) return <Outlet />
 
-  return allowed ? <Outlet /> : <Navigate to="/dashboard" replace />
+  // Arahkan ke menu pertama yang boleh dibuka perannya.
+  const fallback = menuItems.find((m) => m.roles.includes(user.role))
+  if (fallback && fallback.path !== pathname) return <Navigate to={fallback.path} replace />
+
+  return <p className="opacity-70">Akun Anda belum memiliki akses ke menu mana pun. Hubungi Pemilik.</p>
 }
