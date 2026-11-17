@@ -51,7 +51,7 @@ Sistem Manajemen Stok Barang berbasis web untuk mengelola barang mentah (gudang)
 | Backend | Laravel (REST API) | 13.35.0 |
 | Bahasa backend | PHP | 8.3.30 |
 | Database | MySQL | 8.4.3 |
-| Autentikasi | Laravel Sanctum | akan dipasang |
+| Autentikasi | Laravel Sanctum | akan dipasang nanti |
 | Lingkungan lokal | Laragon (Windows) | 8.6.1 |
 | Runtime frontend | Node.js / npm | Node v22.22.0 . npm 10.9.4 |
 | Version control | Git & GitHub | Git 2.47.1 |
