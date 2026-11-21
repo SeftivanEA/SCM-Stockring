@@ -1,33 +1,60 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AuthContext } from './AuthContext'
+import api from '../services/api'
 
-// Sementara: pengguna palsu. Nanti diganti panggilan API (Sanctum).
-const dummyUsers = [
-  { username: 'budi', password: 'password', nama: 'Budi', role: 'pemilik', roleLabel: 'Pemilik' },
-  { username: 'rina', password: 'password', nama: 'Rina', role: 'pendataan', roleLabel: 'Staf Pendataan' },
-  { username: 'dewi', password: 'password', nama: 'Dewi', role: 'penataan', roleLabel: 'Staf Penataan' },
-  { username: 'andi', password: 'password', nama: 'Andi', role: 'pengiriman', roleLabel: 'Staf Pengiriman' },
-  { username: 'sari', password: 'password', nama: 'Sari', role: 'audit', roleLabel: 'Staf Audit' },
-]
+const pickUser = (u) => ({
+  id: u.id,
+  username: u.username,
+  nama: u.nama,
+  role: u.role,
+  roleLabel: u.roleLabel,
+})
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('user')
-    return saved ? JSON.parse(saved) : null
+    return saved && localStorage.getItem('token') ? JSON.parse(saved) : null
   })
 
-  const login = (username, password) => {
-    const found = dummyUsers.find((u) => u.username === username && u.password === password)
-    if (!found) return false
-    const safe = { username: found.username, nama: found.nama, role: found.role, roleLabel: found.roleLabel }
-    setUser(safe)
-    localStorage.setItem('user', JSON.stringify(safe))
-    return true
+  // Saat halaman dibuka ulang, pastikan token masih berlaku dan segarkan data pengguna.
+  useEffect(() => {
+    if (!localStorage.getItem('token')) return
+    api
+      .get('/me')
+      .then((res) => {
+        const fresh = pickUser(res.data.user)
+        setUser(fresh)
+        localStorage.setItem('user', JSON.stringify(fresh))
+      })
+      .catch(() => {
+        // 401 sudah ditangani di api.js
+      })
+  }, [])
+
+  const login = async (username, password) => {
+    try {
+      const res = await api.post('/login', { username, password })
+      const safe = pickUser(res.data.user)
+      localStorage.setItem('token', res.data.token)
+      localStorage.setItem('user', JSON.stringify(safe))
+      setUser(safe)
+      return { ok: true }
+    } catch (err) {
+      const data = err.response?.data
+      const message = data?.errors?.username?.[0] || data?.message || 'Tidak dapat terhubung ke server'
+      return { ok: false, message }
+    }
   }
 
-  const logout = () => {
-    setUser(null)
+  const logout = async () => {
+    try {
+      await api.post('/logout')
+    } catch {
+      // tetap keluar di sisi frontend walaupun server tidak menjawab
+    }
+    localStorage.removeItem('token')
     localStorage.removeItem('user')
+    setUser(null)
   }
 
   return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>

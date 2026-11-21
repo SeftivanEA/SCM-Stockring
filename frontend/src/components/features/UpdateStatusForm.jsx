@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import FormField from '../ui/FormField'
 import Button from '../ui/Button'
+import { parseError } from '../../utils/apiError'
 
 const OPSI = { Baru: ['Diproses', 'Selesai'], Diproses: ['Selesai', 'Baru'] }
 const TAHAP = ['Baru', 'Diproses', 'Selesai']
@@ -10,14 +11,22 @@ export default function UpdateStatusForm({ tugas, onSubmit, onCancel }) {
   const [status, setStatus] = useState(opsi[0])
   const [penerima, setPenerima] = useState('')
   const [catatan, setCatatan] = useState('')
-  const [error, setError] = useState('')
+  const [errors, setErrors] = useState({})
+  const [saving, setSaving] = useState(false)
 
   const perluPenerima = status === 'Selesai' && tugas.jenis === 'Pengiriman'
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (perluPenerima && !penerima.trim()) return setError('Nama penerima wajib diisi')
-    onSubmit({ status, penerima: penerima.trim(), catatan: catatan.trim() })
+    if (perluPenerima && !penerima.trim()) return setErrors({ penerima: 'Nama penerima wajib diisi' })
+    setSaving(true)
+    try {
+      await onSubmit({ status, penerima: penerima.trim(), catatan: catatan.trim() })
+    } catch (err) {
+      const { message, fields } = parseError(err)
+      setErrors(Object.keys(fields).length ? fields : { form: message })
+      setSaving(false)
+    }
   }
 
   return (
@@ -32,9 +41,7 @@ export default function UpdateStatusForm({ tugas, onSubmit, onCancel }) {
         {TAHAP.map((t, i) => (
           <span key={t} className="flex items-center gap-2">
             {i > 0 && <span>→</span>}
-            <span className={`rounded-full px-3 py-1 ${t === tugas.status ? 'bg-primary font-bold' : 'bg-cream opacity-70'}`}>
-              {t}
-            </span>
+            <span className={`rounded-full px-3 py-1 ${t === tugas.status ? 'bg-primary font-bold' : 'bg-cream opacity-70'}`}>{t}</span>
           </span>
         ))}
       </div>
@@ -50,41 +57,28 @@ export default function UpdateStatusForm({ tugas, onSubmit, onCancel }) {
               checked={status === o}
               onChange={() => {
                 setStatus(o)
-                setError('')
+                setErrors({})
               }}
               className="accent-primary"
             />
             {o}
           </label>
         ))}
+        {errors.status && <p className="text-xs text-red-600">{errors.status}</p>}
       </div>
 
       {perluPenerima && (
-        <FormField
-          label="Nama Penerima"
-          required
-          placeholder="cth: Bu Rini"
-          value={penerima}
-          onChange={(e) => setPenerima(e.target.value)}
-          error={error}
-        />
+        <FormField label="Nama Penerima" required placeholder="cth: Bu Rini" value={penerima} onChange={(e) => setPenerima(e.target.value)} error={errors.penerima} />
       )}
 
-      <FormField
-        label="Catatan (opsional)"
-        as="textarea"
-        rows="2"
-        value={catatan}
-        onChange={(e) => setCatatan(e.target.value)}
-      />
+      <FormField label="Catatan (opsional)" as="textarea" rows="2" value={catatan} onChange={(e) => setCatatan(e.target.value)} error={errors.catatan} />
 
-      <p className="text-xs opacity-60">
-        Saat Selesai, stok &amp; riwayat transaksi diperbarui dan Pemilik mendapat notifikasi.
-      </p>
+      <p className="text-xs opacity-60">Saat Selesai, stok &amp; riwayat transaksi diperbarui dan Pemilik mendapat notifikasi.</p>
+      {errors.form && <p className="text-sm text-red-600">{errors.form}</p>}
 
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel}>Batal</Button>
-        <Button type="submit">Simpan Status</Button>
+        <Button type="submit" disabled={saving}>{saving ? 'Menyimpan...' : 'Simpan Status'}</Button>
       </div>
     </form>
   )

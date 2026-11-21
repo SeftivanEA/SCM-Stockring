@@ -12,13 +12,18 @@ export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   if (user) return <Navigate to="/dashboard" replace />
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (login(username.trim(), password)) navigate('/dashboard')
-    else setError('Username atau password salah')
+    setError('')
+    setLoading(true)
+    const result = await login(username.trim(), password)
+    setLoading(false)
+    if (result.ok) navigate('/dashboard')
+    else setError(result.message)
   }
 
   return (
@@ -39,7 +44,9 @@ export default function LoginPage() {
             <input type="password" className={inputClass} value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <Button type="submit" className="w-full">Masuk</Button>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Memproses...' : 'Masuk'}
+          </Button>
         </form>
       </div>
     </div>

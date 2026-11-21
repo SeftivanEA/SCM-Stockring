@@ -1,5 +1,5 @@
 export const menuItems = [
-  { label: 'Dashboard', path: '/dashboard', roles: ['pemilik', 'pendataan', 'penataan', 'pengiriman', 'audit'] },
+  { label: 'Dashboard', path: '/dashboard', roles: ['pemilik', 'pendataan', 'penataan', 'pengiriman', 'audit', 'staf'] },
   { label: 'Daftar Barang', path: '/barang', roles: ['pemilik', 'pendataan', 'audit'] },
   { label: 'Gudang', path: '/gudang', roles: ['pemilik', 'audit'] },
   { label: 'Produk & Penjualan', path: '/produk', roles: ['pemilik'] },
