@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react'
 import { stokService } from '../services/stokService'
+import { useAuth } from '../context/useAuth'
+import { canWriteStok, formatTanggal } from '../utils/permissions'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import Modal from '../components/ui/Modal'
 
 export default function TransaksiPage() {
+  const { user } = useAuth()
+  // Hak akses di tampilan (server tetap yang menjadi penjaga utama).
+  const bolehTulis = canWriteStok(user.role)
+
   const [transaksis, setTransaksis] = useState([])
   const [itemList, setItemList] = useState([])
   const [loading, setLoading] = useState(true)
@@ -104,10 +110,16 @@ export default function TransaksiPage() {
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Riwayat &amp; Catat Transaksi</h1>
-          <p className="text-sm text-ink/70">Pencatatan barang masuk (restok) dan barang keluar (pemotongan stok otomatis).</p>
+          <h1 className="text-2xl font-bold text-ink">
+            {bolehTulis ? 'Riwayat & Catat Transaksi' : 'Riwayat Transaksi'}
+          </h1>
+          <p className="text-sm text-ink/70">
+            {bolehTulis
+              ? 'Pencatatan barang masuk (restok) dan barang keluar (pemotongan stok otomatis).'
+              : 'Riwayat barang masuk (restok) dan barang keluar.'}
+          </p>
         </div>
-        <Button onClick={handleOpenAdd}>+ Catat Transaksi Baru</Button>
+        {bolehTulis && <Button onClick={handleOpenAdd}>+ Catat Transaksi Baru</Button>}
       </div>
 
       {successMsg && (
@@ -152,7 +164,12 @@ export default function TransaksiPage() {
           <p className="p-8 text-center text-sm text-ink/60">Memuat riwayat transaksi...</p>
         ) : transaksis.length === 0 ? (
           <div className="p-8 text-center text-sm text-ink/60">
-            Belum ada transaksi tercatat. Klik <span className="font-semibold text-secondary">+ Catat Transaksi Baru</span> untuk memulai.
+            Belum ada transaksi tercatat.
+            {bolehTulis && (
+              <>
+                {' '}Klik <span className="font-semibold text-secondary">+ Catat Transaksi Baru</span> untuk memulai.
+              </>
+            )}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -178,7 +195,7 @@ export default function TransaksiPage() {
                         {trx.tipe === 'masuk' ? '↓ MASUK / RESTOK' : '↑ KELUAR / JUAL'}
                       </Badge>
                     </td>
-                    <td className="py-3 px-4 text-xs text-ink/80">{trx.tanggal_transaksi}</td>
+                    <td className="py-3 px-4 text-xs text-ink/80">{formatTanggal(trx.tanggal_transaksi)}</td>
                     <td className="py-3 px-4">
                       <ul className="space-y-1">
                         {trx.details?.map((d) => (
@@ -205,7 +222,7 @@ export default function TransaksiPage() {
       </div>
 
       {/* Modal Form Transaksi Baru */}
-      {showModal && (
+      {bolehTulis && showModal && (
         <Modal title="Catat Transaksi Mutasi Stok" onClose={() => setShowModal(false)}>
           <form onSubmit={handleSubmit} className="space-y-3">
             {errorMsg && (
@@ -298,4 +315,3 @@ export default function TransaksiPage() {
     </div>
   )
 }
-

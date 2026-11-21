@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react'
 import { stokService } from '../services/stokService'
+import { useAuth } from '../context/useAuth'
+import { canWriteGudang } from '../utils/permissions'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import Modal from '../components/ui/Modal'
 
 export default function GudangPage() {
+  const { user } = useAuth()
+  // Hak akses di tampilan (server tetap yang menjadi penjaga utama).
+  const bolehTulis = canWriteGudang(user.role)
+
   const [gudangList, setGudangList] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -97,7 +103,7 @@ export default function GudangPage() {
           <h1 className="text-2xl font-bold text-ink">Kelola Gudang &amp; Etalase</h1>
           <p className="text-sm text-ink/70">Daftar lokasi penyimpanan bahan baku, produksi, dan display toko.</p>
         </div>
-        <Button onClick={handleOpenAdd}>+ Tambah Gudang</Button>
+        {bolehTulis && <Button onClick={handleOpenAdd}>+ Tambah Gudang</Button>}
       </div>
 
       {/* Grid Kartu Gudang */}
@@ -105,7 +111,12 @@ export default function GudangPage() {
         <p className="p-8 text-center text-sm text-ink/60">Memuat data gudang...</p>
       ) : gudangList.length === 0 ? (
         <div className="rounded-xl border border-cream bg-white p-8 text-center text-sm text-ink/60">
-          Belum ada gudang terdaftar. Klik <span className="font-semibold text-secondary">+ Tambah Gudang</span> untuk membuat baru.
+          Belum ada gudang terdaftar.
+          {bolehTulis && (
+            <>
+              {' '}Klik <span className="font-semibold text-secondary">+ Tambah Gudang</span> untuk membuat baru.
+            </>
+          )}
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -132,27 +143,29 @@ export default function GudangPage() {
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-cream/50 flex justify-end gap-2">
-                <button
-                  onClick={() => handleOpenEdit(g)}
-                  className="rounded px-2.5 py-1 text-xs font-semibold text-secondary hover:bg-cream/40"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(g.id, g.nama_gudang)}
-                  className="rounded px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
-                >
-                  Hapus
-                </button>
-              </div>
+              {bolehTulis && (
+                <div className="mt-4 pt-3 border-t border-cream/50 flex justify-end gap-2">
+                  <button
+                    onClick={() => handleOpenEdit(g)}
+                    className="rounded px-2.5 py-1 text-xs font-semibold text-secondary hover:bg-cream/40"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(g.id, g.nama_gudang)}
+                    className="rounded px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+                  >
+                    Hapus
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
 
       {/* Modal Form Tambah / Edit Gudang */}
-      {showModal && (
+      {bolehTulis && showModal && (
         <Modal
           title={editingGudang ? 'Edit Gudang' : 'Tambah Gudang Baru'}
           onClose={() => setShowModal(false)}
@@ -221,4 +234,3 @@ export default function GudangPage() {
     </div>
   )
 }
-
