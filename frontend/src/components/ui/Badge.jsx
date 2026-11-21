@@ -5,10 +5,12 @@ const variants = {
   neutral: 'bg-ink text-cream',
 }
 
-export default function Badge({ variant = 'neutral', children }) {
+export function Badge({ variant = 'neutral', children }) {
   return (
     <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${variants[variant]}`}>
       {children}
     </span>
   )
 }
+
+export default Badge;

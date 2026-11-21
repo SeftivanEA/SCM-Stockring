@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import { PageHeader } from '../components/PageHeader';
-import { EmptyState, ErrorState, LoadingState } from '../components/StateMessage';
-import { KindBadge, StatusBadge } from '../components/StatusBadge';
+import { PageHeader } from '../components/ui/PageHeader';
+import { EmptyState, ErrorState, LoadingState } from '../components/ui/StateMessage';
+import { KindBadge, StatusBadge } from '../components/ui/StatusBadge';
 import { useFetch, usePermissions } from '../hooks';
 import { stokApi } from '../services/stokApi';
 import { ui } from '../ui';
@@ -10,7 +10,9 @@ import { formatDate, formatNumber, formatQty, resolveStatus } from '../utils';
 function StatCard({ label, value, highlight }) {
   return (
     <div
-      className={`rounded-xl border-l-4 border-[#F2A900] p-4 shadow-sm ${highlight ? 'bg-[#F9E6A8]' : 'border-y border-r border-y-[#F9E6A8] border-r-[#F9E6A8] bg-white'
+      className={`rounded-xl border-l-4 border-[#F2A900] p-4 shadow-sm ${highlight
+        ? 'bg-[#F9E6A8]'
+        : 'border-y border-r border-y-[#F9E6A8] border-r-[#F9E6A8] bg-white'
         }`}
     >
       <p className="text-xs text-[#4D2A00]/70">{label}</p>
@@ -20,9 +22,10 @@ function StatCard({ label, value, highlight }) {
 }
 
 // Grafik batang sederhana tanpa library tambahan.
-function InOutChart({ data }) {
-  const max = Math.max(1, ...data.flatMap((d) => [d.in, d.out]));
-  const summary = data.map((d) => `${d.label}: masuk ${d.in}, keluar ${d.out}`).join('; ');
+function InOutChart({ data = [] }) {
+  const chartData = data ?? [];
+  const max = Math.max(1, ...chartData.flatMap((d) => [d.in, d.out]));
+  const summary = chartData.map((d) => `${d.label}: masuk ${d.in}, keluar ${d.out}`).join('; ');
 
   return (
     <div role="img" aria-label={`Grafik barang masuk dan keluar 7 hari. ${summary}`}>
@@ -38,11 +41,19 @@ function InOutChart({ data }) {
         </div>
       </div>
       <div className="flex h-44 items-end gap-2 sm:gap-4" aria-hidden="true">
-        {data.map((d) => (
+        {chartData.map((d) => (
           <div key={d.label} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
             <div className="flex h-full w-full items-end justify-center gap-1">
-              <div className="w-3 rounded-t bg-[#F2A900] sm:w-5" style={{ height: `${(d.in / max) * 100}%` }} title={`Masuk: ${d.in}`} />
-              <div className="w-3 rounded-t bg-[#4D2A00] sm:w-5" style={{ height: `${(d.out / max) * 100}%` }} title={`Keluar: ${d.out}`} />
+              <div
+                className="w-3 rounded-t bg-[#F2A900] sm:w-5"
+                style={{ height: `${(d.in / max) * 100}%` }}
+                title={`Masuk: ${d.in}`}
+              />
+              <div
+                className="w-3 rounded-t bg-[#4D2A00] sm:w-5"
+                style={{ height: `${(d.out / max) * 100}%` }}
+                title={`Keluar: ${d.out}`}
+              />
             </div>
             <span className="text-[10px] text-[#4D2A00]/60">{d.label}</span>
           </div>
@@ -81,15 +92,15 @@ export default function DashboardPage() {
 
       {error && !data ? (
         <ErrorState error={error} onRetry={reload} />
-      ) : loading && !data ? (
+      ) : loading || !data ? (
         <LoadingState />
       ) : (
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <StatCard label="Total Item" value={data.summary.total_items} />
-            <StatCard label="Stok Gudang (Mentah)" value={data.summary.raw_stock} />
-            <StatCard label="Stok Etalase (Jadi)" value={data.summary.finished_stock} />
-            <StatCard label="Stok Menipis" value={data.summary.low_stock} highlight />
+            <StatCard label="Total Item" value={data.summary?.total_items} />
+            <StatCard label="Stok Gudang (Mentah)" value={data.summary?.raw_stock} />
+            <StatCard label="Stok Etalase (Jadi)" value={data.summary?.finished_stock} />
+            <StatCard label="Stok Menipis" value={data.summary?.low_stock} highlight />
           </div>
 
           <div className="grid gap-4 lg:grid-cols-3">
@@ -106,7 +117,7 @@ export default function DashboardPage() {
                   </Link>
                 )}
               </div>
-              {data.restock.length === 0 ? (
+              {!data.restock || data.restock.length === 0 ? (
                 <EmptyState text="Semua stok aman." />
               ) : (
                 <ul className="divide-y divide-[#F9E6A8]">
@@ -148,7 +159,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.recent.map((trx) => (
+                  {(data.recent ?? []).map((trx) => (
                     <tr key={trx.id} className="border-t border-[#F9E6A8]/60">
                       <td className={`${ui.td} font-semibold`}>{trx.id}</td>
                       <td className={ui.td}>{formatDate(trx.date)}</td>
@@ -161,7 +172,7 @@ export default function DashboardPage() {
                   ))}
                 </tbody>
               </table>
-              {data.recent.length === 0 && <EmptyState text="Belum ada transaksi." />}
+              {(!data.recent || data.recent.length === 0) && <EmptyState text="Belum ada transaksi." />}
             </div>
           </section>
         </div>

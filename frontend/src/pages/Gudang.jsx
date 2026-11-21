@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { PageHeader } from '../components/PageHeader';
-import { EmptyState, ErrorState, LoadingState } from '../components/StateMessage';
+import { PageHeader } from '../components/ui/PageHeader';
+import { EmptyState, ErrorState, LoadingState } from '../components/ui/StateMessage';
 import { WAREHOUSE_WARNING_PERCENT } from '../constants';
 import { useFetch, usePermissions } from '../hooks';
 import { stokApi } from '../services/stokApi';

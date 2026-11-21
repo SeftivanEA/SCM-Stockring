@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { ConfirmDialog } from '../components/ConfirmDialog';
-import { PageHeader } from '../components/PageHeader';
-import { Pagination } from '../components/Pagination';
-import { EmptyState, ErrorState, LoadingState, Notice } from '../components/StateMessage';
-import { StatusBadge } from '../components/StatusBadge';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { PageHeader } from '../components/ui/PageHeader';
+import { Pagination } from '../components/ui/Pagination';
+import { EmptyState, ErrorState, LoadingState, Notice } from '../components/ui/StateMessage';
+import { StatusBadge } from '../components/ui/StatusBadge';
 import { PAGE_SIZE, STATUS_FILTER_OPTIONS } from '../constants';
 import { useFetch, usePermissions } from '../hooks';
 import { stokApi } from '../services/stokApi';
@@ -29,6 +29,11 @@ export default function ItemListPage() {
     const page = Math.max(1, Number(params.get('page')) || 1);
 
     const [search, setSearch] = useState(q);
+    const [prevQ, setPrevQ] = useState(q);
+    if (q !== prevQ) {
+        setPrevQ(q);
+        setSearch(q);
+    }
     const [notice, setNotice] = useState(location.state?.notice ?? null);
     const [toDelete, setToDelete] = useState(null);
     const [deleting, setDeleting] = useState(false);
@@ -58,8 +63,6 @@ export default function ItemListPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [search]);
 
-    // Sinkronkan kotak pencarian bila URL berubah dari luar (mis. tombol Reset).
-    useEffect(() => setSearch(q), [q]);
 
     const { data, loading, error, reload } = useFetch(
         () => stokApi.listItems({ type: tab === 'semua' ? '' : tab, status, search: q, page, perPage: PAGE_SIZE }),
@@ -115,8 +118,8 @@ export default function ItemListPage() {
                             aria-selected={tab === t.value}
                             onClick={() => update({ tab: t.value, page: 1 })}
                             className={`-mb-px border-b-2 pb-2 text-sm transition-colors ${tab === t.value
-                                    ? 'border-[#F2A900] font-bold text-[#4D2A00]'
-                                    : 'border-transparent text-[#4D2A00]/60 hover:text-[#4D2A00]'
+                                ? 'border-[#F2A900] font-bold text-[#4D2A00]'
+                                : 'border-transparent text-[#4D2A00]/60 hover:text-[#4D2A00]'
                                 }`}
                         >
                             {t.label}
