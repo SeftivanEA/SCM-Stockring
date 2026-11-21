@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react'
 import { stokService } from '../services/stokService'
+import { useAuth } from '../context/useAuth'
+import { canWriteStok } from '../utils/permissions'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import Modal from '../components/ui/Modal'
 
 export default function BarangPage() {
+  const { user } = useAuth()
+  // Hak akses di tampilan (server tetap yang menjadi penjaga utama).
+  const bolehTulis = canWriteStok(user.role)
+
   const [items, setItems] = useState([])
   const [gudangList, setGudangList] = useState([])
   const [loading, setLoading] = useState(true)
@@ -129,7 +135,7 @@ export default function BarangPage() {
           <h1 className="text-2xl font-bold text-ink">Daftar Barang</h1>
           <p className="text-sm text-ink/70">Kelola inventaris barang mentah (gudang) dan produk jadi (etalase).</p>
         </div>
-        <Button onClick={handleOpenAdd}>+ Tambah Barang</Button>
+        {bolehTulis && <Button onClick={handleOpenAdd}>+ Tambah Barang</Button>}
       </div>
 
       {/* Filter Tabs & Search */}
@@ -169,7 +175,12 @@ export default function BarangPage() {
           <p className="p-8 text-center text-sm text-ink/60">Memuat data barang...</p>
         ) : items.length === 0 ? (
           <div className="p-8 text-center text-sm text-ink/60">
-            Tidak ada barang ditemukan. Klik <span className="font-semibold text-secondary">+ Tambah Barang</span> untuk mengisi data.
+            Tidak ada barang ditemukan.
+            {bolehTulis && (
+              <>
+                {' '}Klik <span className="font-semibold text-secondary">+ Tambah Barang</span> untuk mengisi data.
+              </>
+            )}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -183,7 +194,7 @@ export default function BarangPage() {
                   <th className="py-3 px-4 text-center">Stok</th>
                   <th className="py-3 px-4 text-right">Harga Beli</th>
                   <th className="py-3 px-4 text-right">Harga Jual</th>
-                  <th className="py-3 px-4 text-center">Aksi</th>
+                  {bolehTulis && <th className="py-3 px-4 text-center">Aksi</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-cream/50">
@@ -216,22 +227,24 @@ export default function BarangPage() {
                       <td className="py-3 px-4 text-right text-xs font-semibold">
                         Rp {Number(item.harga_jual || 0).toLocaleString('id-ID')}
                       </td>
-                      <td className="py-3 px-4 text-center">
-                        <div className="flex items-center justify-center gap-1.5">
-                          <button
-                            onClick={() => handleOpenEdit(item)}
-                            className="rounded px-2 py-1 text-xs font-medium text-secondary hover:bg-cream/50"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(item.id, item.nama_barang)}
-                            className="rounded px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50"
-                          >
-                            Hapus
-                          </button>
-                        </div>
-                      </td>
+                      {bolehTulis && (
+                        <td className="py-3 px-4 text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              onClick={() => handleOpenEdit(item)}
+                              className="rounded px-2 py-1 text-xs font-medium text-secondary hover:bg-cream/50"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(item.id, item.nama_barang)}
+                              className="rounded px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50"
+                            >
+                              Hapus
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   )
                 })}
@@ -242,7 +255,7 @@ export default function BarangPage() {
       </div>
 
       {/* Modal Form Tambah / Edit Barang */}
-      {showModal && (
+      {bolehTulis && showModal && (
         <Modal
           title={editingItem ? 'Edit Data Barang' : 'Tambah Barang Baru'}
           onClose={() => setShowModal(false)}
@@ -365,4 +378,3 @@ export default function BarangPage() {
     </div>
   )
 }
-
