@@ -340,6 +340,55 @@ export const stokApi = {
       },
     });
   },
+
+  createItem: async (data) => {
+    const qty = Number(data.quantity) || 0;
+    const min = Number(data.min_stock) || 10;
+    const status = qty <= 0 ? 'habis' : qty <= min ? 'menipis' : 'aman';
+    const newItem = {
+      id: Date.now(),
+      name: data.name.trim(),
+      type: data.type || 'jadi',
+      location: data.location || 'Etalase Utama',
+      quantity: qty,
+      unit: data.unit || 'pcs',
+      price: Number(data.price) || 0,
+      min_stock: min,
+      status,
+    };
+    items = [newItem, ...items];
+    return delay(newItem);
+  },
+
+  recordSale: async ({ itemId, quantity, buyer = '', destination = '', recordedBy = 'Budi (Pemilik)' }) => {
+    const qty = Number(quantity);
+    const item = items.find((i) => i.id === Number(itemId));
+    if (!item) throw new Error('Produk tidak ditemukan');
+    if (item.quantity < qty) throw new Error(`Stok tidak mencukupi (sisa ${item.quantity} ${item.unit})`);
+
+    // Potong stok etalase otomatis
+    item.quantity -= qty;
+    const min = Number(item.min_stock) || 10;
+    item.status = item.quantity <= 0 ? 'habis' : item.quantity <= min ? 'menipis' : 'aman';
+
+    // Catat transaksi barang keluar
+    const newTrx = {
+      id: `TRX-${Date.now().toString().slice(-4)}`,
+      date: new Date().toISOString().split('T')[0],
+      item_name: item.name,
+      kind: 'keluar',
+      quantity: qty,
+      unit: item.unit,
+      location: item.location,
+      recorded_by: recordedBy,
+      buyer: buyer || '-',
+      destination: destination || '-',
+      total_price: qty * (item.price || 0),
+    };
+    transactions = [newTrx, ...transactions];
+
+    return delay({ item, transaction: newTrx });
+  },
 };
 
 export default stokApi;

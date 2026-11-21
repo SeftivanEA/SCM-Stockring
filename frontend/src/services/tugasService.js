@@ -20,3 +20,16 @@ export const updateStatusTugas = (id, { status, penerima, catatan }) => {
   })
   return delay(tugas)
 }
+
+export const createTugas = ({ jenis = 'Pengiriman', judul, detail }) => {
+  const newTugas = {
+    id: Date.now(),
+    jenis,
+    judul,
+    detail,
+    status: 'Baru',
+    log: `${tanggal()} · Tugas dibuat dari penjualan`,
+  }
+  tugas = [newTugas, ...tugas]
+  return delay(newTugas)
+}

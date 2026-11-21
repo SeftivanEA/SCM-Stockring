@@ -11,6 +11,7 @@ import DaftarBarang from './pages/DaftarBarang'
 import Gudang from './pages/Gudang'
 import GudangForm from './pages/GudangForm'
 import RiwayatTransaksi from './pages/RiwayatTransaksi'
+import ProdukPenjualanPage from './pages/ProdukPenjualanPage'
 
 export default function App() {
   return (
@@ -27,7 +28,7 @@ export default function App() {
             <Route path="/barang/:id/edit" element={<PlaceholderPage title="Edit Barang" />} />
             <Route path="/gudang" element={<Gudang />} />
             <Route path="/gudang/tambah" element={<GudangForm />} />
-            <Route path="/produk" element={<PlaceholderPage title="Produk & Penjualan" />} />
+            <Route path="/produk" element={<ProdukPenjualanPage />} />
             <Route path="/transaksi" element={<RiwayatTransaksi />} />
             <Route path="/tugas" element={<TugasPage />} />
             <Route path="/divisi" element={<DivisiStafPage />} />
