@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { stokService } from '../services/stokService'
 import { useAuth } from '../context/useAuth'
-import { canWriteStok, formatTanggal } from '../utils/permissions'
+import { canJual, canWriteStok, formatTanggal } from '../utils/permissions'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import Modal from '../components/ui/Modal'
@@ -10,6 +10,8 @@ export default function TransaksiPage() {
   const { user } = useAuth()
   // Hak akses di tampilan (server tetap yang menjadi penjaga utama).
   const bolehTulis = canWriteStok(user.role)
+  const bolehJual = canJual(user.role)
+  const tipeAwal = bolehJual ? 'keluar' : 'masuk'
 
   const [transaksis, setTransaksis] = useState([])
   const [itemList, setItemList] = useState([])
@@ -20,7 +22,7 @@ export default function TransaksiPage() {
   // State Modal Form Transaksi Baru
   const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState({
-    tipe: 'keluar',
+    tipe: tipeAwal,
     tanggal_transaksi: new Date().toISOString().split('T')[0],
     item_id: '',
     jumlah: 1,
@@ -238,7 +240,7 @@ export default function TransaksiPage() {
                 onChange={(e) => setFormData({ ...formData, tipe: e.target.value })}
                 className="mt-1 w-full rounded-lg border border-cream px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
               >
-                <option value="keluar">Keluar / Penjualan (Memotong Stok Otomatis)</option>
+                {bolehJual && <option value="keluar">Keluar / Penjualan (Memotong Stok Otomatis)</option>}
                 <option value="masuk">Masuk / Pembelian / Restok (Menambah Stok)</option>
               </select>
             </div>

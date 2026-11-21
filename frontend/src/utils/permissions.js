@@ -1,5 +1,6 @@
 export const canWriteStok = (role) => ['pemilik', 'pendataan'].includes(role)
 export const canWriteGudang = (role) => role === 'pemilik'
+export const canJual = (role) => role === 'pemilik'
 export const canReadStok = (role) => ['pemilik', 'pendataan', 'audit'].includes(role)
 export const canReadTransaksi = (role) => ['pemilik', 'pendataan', 'audit'].includes(role)
 

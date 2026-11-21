@@ -13,6 +13,11 @@ use Illuminate\Validation\ValidationException;
 
 class TransaksiController extends Controller
 {
+        /**
+     * Peran yang boleh mencatat transaksi keluar (penjualan). Sesuai UC4: hanya Pemilik.
+     * Transaksi masuk (restok/pembelian) tetap boleh untuk Pemilik dan Pendataan (UC3).
+     */
+    private const ROLE_CATAT_KELUAR = ['pemilik'];
     /**
      * Tampilkan riwayat transaksi dengan filter & pencarian.
      */
@@ -60,6 +65,10 @@ class TransaksiController extends Controller
      */
     public function store(Request $request)
     {
+                if ($request->input('tipe') === 'keluar'
+            && ! in_array($request->user()->role, self::ROLE_CATAT_KELUAR, true)) {
+            abort(403, 'Hanya Pemilik yang dapat mencatat transaksi keluar (penjualan).');
+        }
         $request->validate([
             'tipe' => 'required|in:masuk,keluar',
             'tanggal_transaksi' => 'required|date',
