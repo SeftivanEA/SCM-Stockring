@@ -12,8 +12,7 @@ Sistem Manajemen Stok Barang berbasis web untuk mengelola barang mentah (gudang)
 7. [Alur Kerja Git](#alur-kerja-git)
 8. [Aturan Tim](#aturan-tim)
 9. [Troubleshooting](#troubleshooting)
-10. [Progres Pengerjaan](#progres-pengerjaan)
-11. [Anggota Tim](#anggota-tim)
+10. [Anggota Tim](#anggota-tim)
 
 ---
 
@@ -47,11 +46,11 @@ Sistem Manajemen Stok Barang berbasis web untuk mengelola barang mentah (gudang)
 | Bagian | Teknologi | Versi |
 |---|---|---|
 | Frontend | React (Vite) | Vite 8.3.4 · React 19.2.8 |
-| Styling | Tailwind CSS | akan dipasang |
-| Backend | Laravel (REST API) | 13.35.0 |
+| Styling | Tailwind CSS | tailwindcss@4.3.3 |
+| Backend | Laravel (REST API) | 13.40.0 |
 | Bahasa backend | PHP | 8.4.1 |
 | Database | MySQL | 8.4.3 |
-| Autentikasi | Laravel Sanctum | akan dipasang nanti |
+| Autentikasi | Laravel Sanctum | * v4.3.3 |
 | Lingkungan lokal | Laragon (Windows) | 8.6.1 |
 | Runtime frontend | Node.js / npm | Node v22.22.0 . npm 10.9.4 |
 | Version control | Git & GitHub | Git 2.47.1 |
@@ -231,27 +230,11 @@ Lalu di GitHub, buat **Pull Request** dari branch fitur ke `develop` dan minta s
 
 ---
 
-## Progres Pengerjaan
-
-- [x] Setup repository dan struktur proyek
-- [x] Koneksi Laravel ke MySQL
-- [ ] Migration & model (User, Divisi, Gudang, Item, Transaksi)
-- [ ] Login & role (Sanctum)
-- [ ] CRUD Gudang
-- [ ] CRUD Items (barang mentah / produk jadi)
-- [ ] Transaksi & pemotongan stok
-- [ ] Tugas pengiriman & penataan
-- [ ] Divisi & staf
-- [ ] Dashboard
-- [ ] Pengujian & perbaikan
-
----
-
 ## Anggota Tim
 
 | Nama | Peran | GitHub |
 |---|---|---|
-| `Seftivan Ekacandra Adityawardana` | Setup & Koordinasi | `@username` |
+| `Seftivan Ekacandra Adityawardana` | Setup & Koordinasi & Project Manager | `@username` |
 | `Mochammad Maghnun Aziz` | Backend | `@username` |
 | `Aqilla Ziidane Akbar` | Backend | `@username` |
 | `Shafira Maudhia Ayunda Suci` | Frontend | `@username` |
